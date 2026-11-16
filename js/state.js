@@ -12,15 +12,20 @@ const BAGS = [
   { id: 'navy',  name: 'Navy shoulder bag',    price: 40, color: '#35507A', says: 'looks nicer than the price, holds a lot' },
   { id: 'cream', name: 'Cream leather purse',  price: 45, color: '#EADFCB', says: 'soft leather, shows dirt a little' },
   { id: 'brown', name: 'Brown satchel',        price: 50, color: '#8A5A3C', says: 'heavy duty, feels like it will last' },
-  { id: 'plum',  name: 'Plum travel bag',      price: 65, color: '#6B3E5E', says: 'great size for trips, a bit heavy' }
+  { id: 'plum',  name: 'Plum travel bag',      price: 65, color: '#6B3E5E', says: 'great size for trips, a bit heavy' },
+  { id: 'blue',  name: 'Blue phone bag',        price: 18, color: '#6C8EBF', says: 'easy to carry, fits a phone and keys' },
+  { id: 'rose',  name: 'Rose zip pouch',        price: 22, color: '#C9838D', says: 'smooth zipper, useful pockets, cheerful color' },
+  { id: 'gray',  name: 'Gray work tote',        price: 35, color: '#7B858C', says: 'stands upright, roomy inside, strong handles' },
+  { id: 'gold',  name: 'Golden evening bag',    price: 55, color: '#B4934B', says: 'dressy but simple, secure clasp, compact size' }
 ];
-const ITEMS = { coffee: { name: 'Coffee maker', price: 50, emoji: '☕', color: '#E8DCCB' } };
-BAGS.forEach(b => ITEMS[b.id] = { name: b.name, price: b.price, emoji: '👜', color: b.color });
+const ITEMS = { coffee: { name: 'Coffee maker', price: 50, icon: 'coffee', color: '#E8DCCB' } };
+BAGS.forEach(b => ITEMS[b.id] = { name: b.name, price: b.price, icon: 'bag', color: b.color });
 
 const fresh = () => ({
   flow: 'B', cart: ['coffee'], delivery: 'free', protect: false,
-  newCard: false, dontSave: true, receipt: false, wrap: false, note: false,
+  newCard: false, dontSave: true, receipt: false, wrap: false, note: false, giftMessage: '',
   helper: 'Lisa', tipSaved: false, overlay: null, ship: { ...DEFAULT_SHIP },
+  lastOrderId: null,
   tips: ['Check the delivery date before you pay.', 'Never read your card number to someone who calls you.'],
   orders: [
     { id: 'toaster', name: 'Toaster', status: 'Shipped', shipped: 'Fri, Oct 30', arrives: 'Fri, Nov 6', paid: '$30', card: CARD },
@@ -32,9 +37,9 @@ let S = fresh();
 
 function totals() {
   const it = ITEMS[S.cart[0]] || { price: 0 };
-  const B = S.flow === 'B', C = S.flow === 'C';
-  const item = it.price, ship = B && S.delivery === 'express' ? 10 : 0;
-  const prot = B && S.protect ? 8 : 0, wrap = C && S.wrap ? 5 : 0;
+  const isCoffee = S.flow === 'B', isGift = S.flow === 'C';
+  const item = it.price, ship = isCoffee && S.delivery === 'express' ? 10 : 0;
+  const prot = isCoffee && S.protect ? 8 : 0, wrap = isGift && S.wrap ? 5 : 0;
   const tax = Math.round(item * TAX);
   return { item, ship, prot, wrap, tax, total: item + ship + prot + wrap + tax };
 }
