@@ -56,9 +56,10 @@ A1: () => { const toasterOrder = S.orders.find(order => order.id === 'toaster');
   ${btn('Shop at Maple &amp; Main','data-go="B1"')}${btn('My Orders','data-go="A2"','secondary')}${btn('Family Helpers','data-go="A4"','secondary')}`, { back: false, nav: 'Home' }); },
 A2: () => page(`<h1>My Orders</h1>${S.orders.map(o => `<button class="card ${o.old ? 'old' : ''}" data-go="A3/${o.id}"><b>${o.name}</b><span>${o.status}${o.arrives && !o.old ? ' · arrives ' + o.arrives : ''}</span></button>`).join('')}`, { nav: 'Orders' }),
 A3: id => { const order = S.orders.find(item => item.id === id) || S.orders[0];
-  return page(`<div class="ok" aria-hidden="true">✓</div><h1>Order details</h1><div class="facts">
+  return page(`<div class="ok" aria-hidden="true">✓</div><h1>Order details</h1>
+  ${order.arrives ? `<div class="arrive"><span>Arrives</span><strong>${order.arrives}</strong></div>` : ''}<div class="facts">
   <p><b>Item</b>${order.name}${/^\d{3}[A-Z]$/.test(order.id) ? ' (order ' + order.id + ')' : ''}</p>
-  ${order.shipped ? `<p><b>Shipped</b>${order.shipped}</p>` : ''}${order.arrives ? `<p><b>Arrives</b>${order.arrives}</p>` : `<p><b>Status</b>${order.status}</p>`}
+  ${order.shipped ? `<p><b>Shipped</b>${order.shipped}</p>` : ''}${order.arrives ? '' : `<p><b>Status</b>${order.status}</p>`}
   <p><b>Paid</b>${order.paid} with ${order.card}</p>
   ${order.delivery ? `<p><b>Delivery</b>${order.delivery}</p>` : ''}
   ${order.protection ? `<p><b>Protection plan</b>$8</p>` : ''}
