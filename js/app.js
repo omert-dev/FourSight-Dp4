@@ -76,7 +76,8 @@ document.addEventListener('click', e => {
   if (r === 'stay') return;
   if (d.go) go(d.go); else if (r !== 'nav') render();
 });
-document.addEventListener('input', e => { if (e.target.dataset.bind) { S[e.target.dataset.bind] = e.target.value; const count = e.target.parentElement.querySelector('small'); if (count) count.textContent = `${e.target.value.length}/180 characters`; } });
+document.addEventListener('submit', e => { if (e.target.id === 'product-search') { e.preventDefault(); updateSearch(); } });
+document.addEventListener('input', e => { if (e.target.id === 'search-query') updateSearch(); if (e.target.dataset.bind) { S[e.target.dataset.bind] = e.target.value; const count = e.target.parentElement.querySelector('small'); if (count) count.textContent = `${e.target.value.length}/180 characters`; } });
 document.addEventListener('keydown', e => { if ((e.key === 'r' || e.key === 'R') && !/INPUT|TEXTAREA/.test(e.target.tagName)) ACTS.restart(); });
 window.addEventListener('hashchange', render);
 render();
