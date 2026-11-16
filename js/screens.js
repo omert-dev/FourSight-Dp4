@@ -33,8 +33,18 @@ const safeScreen = () => { const orderTotals = totals(), isCoffee = flowIs('B'),
   ${btn('Pay ' + money(orderTotals.total), `data-act="pay" data-go="${isCoffee ? 'B9' : 'C18'}"`)}
   ${btn('Change something', `data-go="${isCoffee ? 'B4' : 'C9'}"`, 'secondary')}`, { banner: 'Coach is on', nav: 'Shop' }); };
 
-const bagGrid = list => `<div class="grid">${list.map(b => `<button class="prod" data-go="C4/${b.id}">${tile(ITEMS[b.id])}<b>${b.name}</b><span>${money(b.price)}</span></button>`).join('')}</div>`;
+const productGrid = entries => `<div class="grid">${entries.map(([id, item]) => `<button class="prod" data-go="C4/${id}">${tile(item)}<b>${item.name}</b><span>${money(item.price)}</span></button>`).join('')}</div>`;
+const bagGrid = list => productGrid(list.map(b => [b.id, ITEMS[b.id]]));
 const under30 = BAGS.filter(b => b.price < 30);
+
+const searchResults = () => {
+  const matches = searchProducts(S.searchQuery);
+  const query = S.searchQuery.trim();
+  return `<p role="status" aria-live="polite" aria-atomic="true">${matches.length
+    ? `${matches.length} ${matches.length === 1 ? 'product' : 'products'}${query ? ' found' : ' available'}.`
+    : 'No products match your search. Try another name or category, such as “bag” or “Kitchen”, or clear your search.'}</p>
+  ${productGrid(matches)}`;
+};
 
 const giftScreen = mode => page(
   coach(2, 3, 'choice', 'Choose any gift extras you want.', 'gift') +
@@ -104,10 +114,21 @@ B9: () => { const id = S.lastOrderId || '123A';
   return page(`<div class="ok" aria-hidden="true">✓</div><h1>Order placed</h1><p>Order ${id} is in My Orders. We’ll email you when it ships.</p>${btn('See it in My Orders','data-go="A2"')}`, { back: false, nav: 'Orders' }); },
 
 // ---------- C: Gift for Emma ----------
-C1: () => page(`<div class="search">${icon('search')}handbag</div><div class="chips"><button class="filter-primary" data-go="C2">Under $30</button><button data-go="C3">Gifts</button></div>${bagGrid(BAGS)}`, { banner: 'Coach is on', nav: 'Shop' }),
+C1: () => page(`<h1>Search the store</h1>
+  <form id="product-search" role="search"><label for="search-query">Product name or category</label>
+  <div class="search search-field">${icon('search')}<input id="search-query" type="search" value="${escapeHTML(S.searchQuery)}" placeholder="Try bag or Kitchen" aria-controls="search-results"></div>
+  <div class="btns">${btn('Search', 'type="submit"')}${btn('Clear search', 'type="button" data-act="clearSearch"', 'secondary')}</div></form>
+  <div class="chips"><button class="filter-primary" data-go="C2">Under $30</button><button data-go="C3">Gifts</button></div>
+  <div id="search-results">${searchResults()}</div>`, { banner: 'Coach is on', nav: 'Shop' }),
 C2: () => page(`<h1>Bags under $30</h1>${bagGrid(under30)}`, { banner: 'Coach is on', nav: 'Shop' }),
 C3: () => page(`<h1>Gifts › Bags</h1>${bagGrid(under30)}`, { banner: 'Coach is on', nav: 'Shop' }),
-C4: id => { const b = BAGS.find(x => x.id === id) || BAGS[0];
+C4: id => {
+  if (id === 'coffee') {
+    const item = ITEMS.coffee;
+    return page(`${tile(item, 'big')}<h1>${item.name}</h1><div class="price"><b>${money(item.price)}</b></div>
+    ${btn('Add to cart', 'data-act="addCoffee" data-go="B2"')}`, { banner: 'Coach is on', nav: 'Shop' });
+  }
+  const b = BAGS.find(x => x.id === id) || BAGS[0];
   return page(`${tile(ITEMS[b.id], 'big')}<h1>${b.name}</h1><div class="price"><b>${money(b.price)}</b></div>
   <p><b>What buyers say, in plain words:</b> ${b.says}.</p><p>★ 4.6 from 212 buyers</p>
   ${btn('Add to cart', `data-act="addBag" data-val="${b.id}" data-go="C5"`)}`, { banner: 'Coach is on', nav: 'Shop' }); },

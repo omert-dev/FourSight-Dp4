@@ -18,11 +18,19 @@ const BAGS = [
   { id: 'gray',  name: 'Gray work tote',        price: 35, color: '#7B858C', says: 'stands upright, roomy inside, strong handles' },
   { id: 'gold',  name: 'Golden evening bag',    price: 55, color: '#B4934B', says: 'dressy but simple, secure clasp, compact size' }
 ];
-const ITEMS = { coffee: { name: 'Coffee maker', price: 50, icon: 'coffee', color: '#E8DCCB' } };
-BAGS.forEach(b => ITEMS[b.id] = { name: b.name, price: b.price, icon: 'bag', color: b.color });
+const ITEMS = { coffee: { name: 'Coffee maker', category: 'Kitchen', price: 50, icon: 'coffee', color: '#E8DCCB' } };
+BAGS.forEach(b => ITEMS[b.id] = { name: b.name, category: 'Gifts Bags Handbags', price: b.price, icon: 'bag', color: b.color });
+
+const searchProducts = query => {
+  const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  return Object.entries(ITEMS).filter(([, item]) => {
+    const text = `${item.name} ${item.category}`.toLowerCase();
+    return terms.every(term => text.includes(term));
+  });
+};
 
 const fresh = () => ({
-  flow: 'B', cart: ['coffee'], delivery: 'free', protect: false,
+  flow: 'B', cart: ['coffee'], delivery: 'free', protect: false, searchQuery: '',
   newCard: false, dontSave: true, receipt: false, wrap: false, note: false, giftMessage: '',
   helper: 'Lisa', tipSaved: false, overlay: null, ship: { ...DEFAULT_SHIP },
   lastOrderId: null,

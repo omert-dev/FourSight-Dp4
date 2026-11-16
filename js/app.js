@@ -24,7 +24,18 @@ function go(t) { S.overlay = null; const h = '#/' + t; if (location.hash === h) 
 function toast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.getElementById('phone').appendChild(t); setTimeout(() => t.remove(), 2500); }
 const val = id => (document.getElementById(id) || {}).value;
 
+function updateSearch() {
+  S.searchQuery = val('search-query');
+  const results = document.getElementById('search-results');
+  // Keep the status node mounted so assistive technology can announce updates.
+  const content = document.createElement('div');
+  content.innerHTML = searchResults();
+  results.querySelector('[role="status"]').textContent = content.querySelector('[role="status"]').textContent;
+  results.querySelector('.grid').replaceWith(content.querySelector('.grid'));
+}
+
 const ACTS = {
+  clearSearch: () => { const input = document.getElementById('search-query'); input.value = ''; updateSearch(); input.focus(); return 'nav'; },
   pick: d => { S[d.key] = d.val; },
   toggle: d => { S[d.key] = !S[d.key]; },
   protect: d => { S.protect = d.val === '1'; },
@@ -66,9 +77,6 @@ document.addEventListener('click', e => {
   if (d.go) go(d.go); else if (r !== 'nav') render();
 });
 document.addEventListener('input', e => { if (e.target.dataset.bind) { S[e.target.dataset.bind] = e.target.value; const count = e.target.parentElement.querySelector('small'); if (count) count.textContent = `${e.target.value.length}/180 characters`; } });
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape' && S.overlay) { S.overlay = null; render(); return; } // Esc closes any open pop-up
-  if ((e.key === 'r' || e.key === 'R') && !/INPUT|TEXTAREA/.test(e.target.tagName)) ACTS.restart();
-});
+document.addEventListener('keydown', e => { if ((e.key === 'r' || e.key === 'R') && !/INPUT|TEXTAREA/.test(e.target.tagName)) ACTS.restart(); });
 window.addEventListener('hashchange', render);
 render();
